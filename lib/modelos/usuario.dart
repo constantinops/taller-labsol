@@ -17,17 +17,6 @@ class Usuario {
     Map<String, dynamic> jsonFoto = Map.of(json['picture']);
     urlFoto = jsonFoto[size];
 
-
-
-
-
-
-
-
-
-
-
-
     Map<String, dynamic> edadUsuario = Map.of(json["dob"]);
     edad = edadUsuario["age"];
     celular = json["cell"];
