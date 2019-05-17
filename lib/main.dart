@@ -13,7 +13,12 @@ class Aplicacion extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          primaryColor: Colors.amber
+        primaryColor: Colors.lightBlue,
+        brightness: Brightness.dark,
+        accentColor: Colors.amber,
+        buttonColor: Colors.deepPurple,
+
+
       ),
       home: PantallaPrincipal(),
     );
@@ -37,6 +42,23 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
   }
 
   Widget build(BuildContext contexto) {
+
+
+    int _index = 0;
+
+    Widget _switcherBody() {
+      switch (_index) {
+        case 0:
+          return null;
+        case 1:
+          return new Container(child: Center(child: new Text("Tela 2")));
+      }
+      return null;
+    }
+
+
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Lista de Usuarios'),
@@ -46,20 +68,25 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
         child: Column(
           children: <Widget>[
             DrawerHeader(
+
+
               child: Column(
+
                 children: <Widget>[
+
                   _usuario == null ?
                       Icon(Icons.account_circle) :
                   CircleAvatar(
                     radius: 48,
                     backgroundImage: NetworkImage(_usuario.urlFoto),
                   ),
-                  Text('Luis Enrque'),
+                  Text(_usuario == null ? "Sin datos" : _usuario.nombre),
                   Text(_usuario == null ?
                       'Sin datos' : _usuario.correo
                   )
                 ],
               ),
+
             ),
             ListTile(
               title: Text('Pantalla Cupertino'),
@@ -81,14 +108,58 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
           ],
         ),
       ),
-      body: Center(
-
-        child: Text('datos'),
+      body: FutureBuilder(
+        future: obtenUsuarios(),
+        initialData: null,
+        builder: (BuildContext localContext, AsyncSnapshot<List<Usuario>> result){
+          if (!result.hasData || result.data == null) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            List<Usuario> usuarios = result.data;
+            return ListView.builder(
+              itemCount: usuarios.length,
+              itemBuilder: (BuildContext ctx, int indice) {
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(usuarios[indice].urlFoto),
+                  ),
+                  title: Text(usuarios[indice].nombre),
+                  subtitle: Text(usuarios[indice].correo),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext ctx) {
+                          return AlertDialog(
+                            title: Text(usuarios[indice].nombre),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text("Correo: ${usuarios[indice].correo}"),
+                                Text("Edad: ${usuarios[indice].edad}"),
+                                Text("Celular: ${usuarios[indice].celular}"),
+                                Text("Telefono: ${usuarios[indice].telefono}"),
+                              ],
+                            ),
+                          );
+                        }
+                    );
+                  },
+                );
+              },
+            );
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.refresh),
-        onPressed: (){
+        onPressed: () {
+          setState(() {
+          });
         },
+        tooltip: 'Increment',
+        child: Icon(Icons.refresh),
       ),
     );
   }
@@ -100,12 +171,37 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     Map<String, dynamic> respuestaJson = jsonDecode(respuesta.body);
     // Convirtiendo el campo dinamico del Json a Lista
     List usuarios = respuestaJson['results'] as List;
+
     // Actualizando o reconstruyendo pantalla
     print(respuestaJson);
     setState(() {
       _usuario = Usuario.fromJson(Map.of(usuarios[0]), 'large');
     });
   }
+
+
+  Future<List<Usuario>> obtenUsuarios() async {
+    http.Response response = await http.get("https://randomuser.me/api?results=100");
+    Map<String, dynamic> json = jsonDecode(response.body);
+    List jsonUsuarios = json["results"] as List;
+    List<Usuario> usuarios = [];
+    for (var jsonUsuario in jsonUsuarios) {
+      Map<String, dynamic> datosUsuario = Map.of(jsonUsuario);
+      usuarios.add(Usuario.fromJson(datosUsuario, "thumbnail"));
+    }
+    return usuarios;
+  }
+
+  Future<void> cambiaUsuarioActual() async {
+    http.Response response = await http.get("https://randomuser.me/api");
+    Map<String, dynamic> json = jsonDecode(response.body);
+    List jsonUsuarios = json["results"] as List;
+    Usuario usuario = Usuario.fromJson(Map.of(jsonUsuarios[0]), "large");
+    setState(() {
+      _usuario = usuario;
+    });
+  }
 }
+
 
 
