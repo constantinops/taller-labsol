@@ -4,6 +4,7 @@ import 'package:api_usuarios/pantallas/pantalla_cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:api_usuarios/modelos/usuario.dart';
 import 'dart:convert';
+import 'package:api_usuarios/pantallas/pantalla_formulario.dart';
 import 'package:api_usuarios/pantallas/pantallaimagen.dart';
 
 void main() => runApp(Aplicacion());
@@ -37,23 +38,6 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
 
   int set=0;
 
-  //dddd
-
-/*
-  _slect(int pos){
-    Switch(pos){
-      case 0:
-        return cupertino();
-        case 1:
-          return PantallaStateful();
-
-
-    }
-
-  }
-
-*/
-
   Usuario _usuario;
 
   /// Metodo que se ejecuta cuando se crea por primera vez
@@ -64,16 +48,6 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
   }
 
   Widget build(BuildContext contexto) {
-
-
-
-    int _index = 0;
-
-
-
-
-
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Lista de Usuarios'),
@@ -128,6 +102,15 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
                   MaterialPageRoute(builder: (context) => PantallaImagen()),
                 );
               },
+            ),
+            ListTile(
+              title: Text('Formulario'),
+              onTap: () {
+                Navigator.push(
+                  contexto,
+                  MaterialPageRoute(builder: (context) => PantallaFormulario()),
+                );
+              },
             )
           ],
         ),
@@ -167,6 +150,14 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
                                 Text("Telefono: ${usuarios[indice].telefono}"),
                               ],
                             ),
+                            actions: <Widget>[
+                              RaisedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text('Cerrar'),
+                              )
+                            ],
                           );
                         }
                     );
